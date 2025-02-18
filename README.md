@@ -51,6 +51,10 @@
   1. [PlugShare](https://www.plugshare.com/)
   2. [EVgo](https://www.evgo.com/)
   3. [Open Charge Map](https://openchargemap.org/site)
+ 
+2. ### Charge Stations
+     * A charge station typically contains multiple charge points for users to charge their electric vehicles simultaneously.
+     * Each charge station could have different charging capacities, such as Level 1, Level 2, or DC fast charging.
    
   
   
