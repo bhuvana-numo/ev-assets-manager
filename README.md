@@ -28,5 +28,14 @@
   2. [Greenlots](https://www.shell.us/electric-vehicle-charging.html#vanity-aHR0cHM6Ly93d3cuc2hlbGwudXMvc2hlbGxyZWNoYXJnZS5odG1s)
   3. [ChargePoint (which also operates as a CPO and software vendor)](https://www.chargepoint.com/?srsltid=AfmBOoqvj2MdA9oOqgLViDCPKJecfATzYjUIFAAsSPgroru7D4QW6wlu)
   4. [Enel X](https://www.mobility.enelx.com/)
+ 
+3. ### Charge Point Owner
+* A Charge Point Owner owns the charging stations, which includes the chargers, connectors, and other necessary hardware (such as power meters, cables, and sometimes kiosks).It may also own or lease the land or space where the charging stations are located (e.g., parking lots, shopping centers, highway rest areas).
+* It is responsible for the initial investment in purchasing the charging stations and installing them in strategic locations.This could involve significant capital expenditure for purchasing hardware, covering installation costs, and ensuring that the stations have reliable access to electricity.
+* If the owner also operates the stations (or has operational control), they might handle the pricing and payment models, but typically this is managed by the CPO(charge point operator),if there is an operator in place.
+* The owner ensures that the charging stations meet legal and regulatory standards, including safety, insurance, and other compliance issues related to land use, energy consumption, and environmental factors.
+* The owner may collaborate with CPOs or other entities to expand their network but typically doesn’t get involved in the day-to-day operations themselves.
+* Businesses or municipalities, may own the charging stations but outsource the operation to a third-party Charge Point Operator (CPO) or another management entity like Charge Point,BP Pulse,Ionity.
+   
   
   
