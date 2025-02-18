@@ -36,6 +36,21 @@
 * The owner ensures that the charging stations meet legal and regulatory standards, including safety, insurance, and other compliance issues related to land use, energy consumption, and environmental factors.
 * The owner may collaborate with CPOs or other entities to expand their network but typically doesn’t get involved in the day-to-day operations themselves.
 * Businesses or municipalities, may own the charging stations but outsource the operation to a third-party Charge Point Operator (CPO) or another management entity like Charge Point,BP Pulse,Ionity.
+
+## Assets
+1. ### Location
+* The physical site or geographic area where the EV charging infrastructure is deployed.
+* It could be located at various places like parking lots, shopping centers, highways, residential areas, business premises, or public facilities.
+* The location determines the availability and accessibility of the charging stations to users, and it might include important considerations like traffic flow, electricity supply, and user convenience.
+* Locations should be easy to access, well-marked, and visible to EV drivers. This includes making sure that there is enough space for vehicles to park and charge, with clear signage indicating the charging stations' presence.
+* #### In an EV Charging Management System (EV CMS), the location data is typically tracked for multiple purposes:
+  1. Mapping : Charging stations are often shown on a map for users to find the nearest available chargers.
+  2. Performance Analysis: System operators can track how often stations at particular locations are used, helping them plan for more installations or upgrades.
+  3. Maintenance Tracking: The location of charging stations helps maintenance teams identify and prioritize stations that need repair or updates.
+* #### Platforms to locate EV charging stations:
+  1. [PlugShare](https://www.plugshare.com/)
+  2. [EVgo](https://www.evgo.com/)
+  3. [Open Charge Map](https://openchargemap.org/site)
    
   
   
