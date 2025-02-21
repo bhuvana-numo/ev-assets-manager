@@ -3,11 +3,12 @@
     "version": "1.0.0",
     "description": "EV Assets Manager - Backend APIs for managing charging assets",
     "main": "index.js",
-    "scripts": {
-        "start": "node index.js",
-        "test": "echo \"No tests yet\" && exit 0",
-        "lint": "eslint . --ext .js,.ts"
-    },
+
+  "scripts": {
+  "lint": "eslint .",
+  "test": "echo \"No tests specified\" && exit 0"
+},
+
     "dependencies": {
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
