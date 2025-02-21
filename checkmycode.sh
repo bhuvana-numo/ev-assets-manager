@@ -17,7 +17,8 @@ npx jscpd --min-lines 3 --min-tokens 25 --threshold 0 --gitignore --ignore "node
 npm audit
 
 # Run tests with coverage
-npx nyc --temp-dir=NUL --all --reporter=text npm run test
+npx nyc --all --reporter=text npm run test
+
 npx nyc check-coverage --functions 100 --branches 100 --lines 100
 
 echo "Check Complete :)"
