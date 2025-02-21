@@ -1,0 +1,60 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+logs/*.log
+logs/**/*.log
+npm-debug.log
+yarn-debug.log
+pnpm-debug.log
+lerna-debug.log
+.npm/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+*.log
+*.out
+*.err
+
+# Editor-specific files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating system files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Coverage and test output
+coverage/
+nyc_output/
+jest/
+*.lcov
+*.clover
+*.html
+
+# Build artifacts
+dist/
+build/
+out/
+tmp/
+.cache/
+
+
+# Miscellaneous
+*.bak
+*.swp
+*.swo
