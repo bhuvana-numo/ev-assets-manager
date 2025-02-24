@@ -1,17 +1,13 @@
 #!/bin/bash
 set -e
 
-# Check if dependencies are installed
-if [ ! -d "node_modules" ] || [ ! -f "package-lock.json" ]; then
-  echo "Please run 'npm install' first."
-  exit 1
-fi
+[ ! -d "./node_modules" ] && echo "Please npm install first." && exit 1
 
-# Run ESLint only if relevant files exist
-if find . -name "*.js" -o -name "*.mjs" -o -name "*.cjs" | grep -q .; then
+# Run ESLint only if there are .js files
+if find . -name "*.js" | grep -q .; then
   npx eslint .
 else
-  echo "No JavaScript/TypeScript files found. Skipping ESLint."
+  echo "No JavaScript files found. Skipping ESLint."
 fi
 
-echo "✅ Check Complete :)"
+echo "Check Complete :)"
