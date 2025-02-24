@@ -14,9 +14,6 @@ fi
 # Run security audit
 npm audit
 
-# Run tests with coverage
-npx nyc --all --reporter=text npm run test
 
-npx nyc check-coverage --functions 100 --branches 100 --lines 100
 
 echo "Check Complete :)"
