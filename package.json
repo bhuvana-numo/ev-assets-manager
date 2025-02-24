@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "eslint .",
         "test": "echo \"No tests specified\" && exit 0",
-        "jscpd": "jscpd --threshold 5" 
+        "jscpd": "jscpd --threshold 5"
     },
     "dependencies": {
         "cors": "^2.8.5",
