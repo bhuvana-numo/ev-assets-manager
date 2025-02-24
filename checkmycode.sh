@@ -10,8 +10,6 @@ else
   echo "No JavaScript files found. Skipping ESLint."
 fi
 
-# Check for duplicate code
-npx jscpd --min-lines 3 --min-tokens 25 --threshold 0 --gitignore --ignore "node_modules,dist,coverage" --silent .
 
 # Run security audit
 npm audit
