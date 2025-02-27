@@ -21,13 +21,13 @@ router.get('/:id', async (req, res) => {
     res.json(connector);
 });
 
-// Update a Connector
+// Update a Connector by ID
 router.put('/:id', async (req, res) => {
     const updatedConnector = await Connector.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updatedConnector);
 });
 
-// Delete a Connector
+// Delete a Connector by ID
 router.delete('/:id', async (req, res) => {
     await Connector.findByIdAndDelete(req.params.id);
     res.json({ message: "Connector deleted" });
