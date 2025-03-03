@@ -28,7 +28,7 @@ jobs:
         run: npm run lint
 
       - name: Run Tests with Coverage
-        run: npx nyc --reporter=lcov --reporter=text mocha test/**/*.test.js
+        run: npx nyc --reporter=lcov --reporter=text mocha ev-charging-api/test/**/*.test.js 
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v3
