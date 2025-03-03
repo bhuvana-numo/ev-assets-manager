@@ -24,6 +24,7 @@ router.get("/", async (req, res) => {
 });
 
 // **READ**: Get a single location by ID
+// **READ**: Get a single location by ID
 router.get("/:id", async (req, res) => {
     try {
         const location = await Location.findById(req.params.id);
@@ -32,7 +33,8 @@ router.get("/:id", async (req, res) => {
         }
         res.json(location);
     } catch (err) {
-        res.status(400).json({ error: "Invalid ID format" });
+        console.error("Error fetching location:", err.message); // Log the error
+        res.status(400).json({ error: err.message || "Invalid ID format" });
     }
 });
 

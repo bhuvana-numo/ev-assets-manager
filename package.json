@@ -2,13 +2,14 @@
     "name": "ev-assets-manager",
     "version": "1.0.0",
     "description": "EV Assets Manager - Backend APIs for managing charging assets",
-    "main": "index.js",
+    "main": "node ev-charging-api/server.js",
     "scripts": {
 
         "lint": "eslint .",
          "start": "node ev-charging-api/server.js",
-        "test": "mocha \"ev-charging-api/test/**/*.js\"",
-        "jscpd": "jscpd --threshold 5"
+         "test": "mocha --exit ev-charging-api/test/location.test.js &&  mocha --exit ev-charging-api/test/chargeStation.test.js && mocha --exit ev-charging-api/test/chargePoint.test.js && mocha --exit ev-charging-api/test/connector.test.js",
+         "coverage": "nyc --reporter=lcov --reporter=text npm run test",
+        "jscpd": "jscpd --threshold 2 --ignore 'node_modules/**'"
     },
     "dependencies": {
         "cors": "^2.8.5",
@@ -25,6 +26,12 @@
         "supertest": "^7.0.0",
         "typescript-eslint": "^8.24.1"
     },
+    "nyc": {
+  "reporter": ["json-summary", "text", "lcov"],
+  "all": true,
+  "include": ["ev-charging-api/**/*.js"]
+},
+
     "engines": {
         "node": ">=18"
     },

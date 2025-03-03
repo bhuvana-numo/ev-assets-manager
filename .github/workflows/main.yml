@@ -27,8 +27,23 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-      - name: Run Tests
-        run: npm test
+      - name: Run Tests with Coverage
+        run: npx nyc --reporter=lcov --reporter=text mocha test/**/*.test.js
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: true
+
+      - name: Enforce Coverage Threshold
+        run: |
+          COVERAGE=$(npx nyc report --reporter=json-summary | jq '.total.lines.pct')
+          echo "Current Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Coverage is below 80%! Fix it before merging."
+            exit 1
+          fi
 
       - name: Run checkmycode.sh
         run: bash checkmycode.sh

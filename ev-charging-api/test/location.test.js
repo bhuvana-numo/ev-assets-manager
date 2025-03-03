@@ -86,7 +86,7 @@ describe("Locations API", () => {
 
 
             const checkLocation = await Location.findById(location._id);
-            expect(checkLocation).to.be.null;
+            expect(checkLocation).to.be.equal(null);
         });
     });
 
