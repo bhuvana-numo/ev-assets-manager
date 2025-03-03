@@ -4,11 +4,10 @@
     "description": "EV Assets Manager - Backend APIs for managing charging assets",
     "main": "node ev-charging-api/server.js",
     "scripts": {
-
         "lint": "eslint .",
-         "start": "node ev-charging-api/server.js",
-         "test": "mocha --exit ev-charging-api/test/location.test.js &&  mocha --exit ev-charging-api/test/chargeStation.test.js && mocha --exit ev-charging-api/test/chargePoint.test.js && mocha --exit ev-charging-api/test/connector.test.js",
-         "coverage": "nyc --reporter=lcov --reporter=text npm run test",
+        "start": "node ev-charging-api/server.js",
+        "test": "mocha --exit ev-charging-api/test/location.test.js &&  mocha --exit ev-charging-api/test/chargeStation.test.js && mocha --exit ev-charging-api/test/chargePoint.test.js && mocha --exit ev-charging-api/test/connector.test.js",
+        "coverage": "nyc --reporter=lcov --reporter=text npm run test",
         "jscpd": "jscpd --threshold 2 --ignore 'node_modules/**'"
     },
     "dependencies": {
@@ -19,6 +18,8 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.20.0",
+        "chai": "^5.2.0",
+        "chai-http": "^5.1.1",
         "eslint": "^8.57.1",
         "globals": "^15.15.0",
         "jscpd": "^3.3.26",
@@ -27,11 +28,16 @@
         "typescript-eslint": "^8.24.1"
     },
     "nyc": {
-  "reporter": ["json-summary", "text", "lcov"],
-  "all": true,
-  "include": ["ev-charging-api/**/*.js"]
-},
-
+        "reporter": [
+            "json-summary",
+            "text",
+            "lcov"
+        ],
+        "all": true,
+        "include": [
+            "ev-charging-api/**/*.js"
+        ]
+    },
     "engines": {
         "node": ">=18"
     },
