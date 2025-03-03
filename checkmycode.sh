@@ -1,29 +1,38 @@
 #!/bin/bash
-set -e  # Exit immediately if any command fails
-set -x
 
-# Ensure dependencies are installed
-if [ ! -d "./node_modules" ]; then
-  echo "Please run 'npm install' first."
-  exit 1
+# Exit immediately if a command exits with a non-zero status
+set -e
+set -x 
+
+# Check if node_modules exists; if not, install dependencies
+if [ ! -d ./node_modules ]; then
+    echo "Installing dependencies..."
+    npm install
 fi
 
-# Start MongoDB in the background
+# Start MongoDB based on OS
 echo "Starting MongoDB..."
-"C:/mongodb/bin/mongod" --dbpath "C:/mongodb/data" > /dev/null 2>&1 &
-
-# Wait for MongoDB to initialize
-sleep 5  
-
-# Run ESLint only if there are .js files
-if find . -name "*.js" | grep -q .; then
-  echo "Running ESLint..."
-  npx eslint .
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "Running on Linux..."
+    sudo systemctl start mongodb
+    sleep 5  # Wait for MongoDB to be ready
+elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    echo "Running on Windows..."
+    C:/mongodb/bin/mongod --dbpath C:/mongodb/data &
+    sleep 5  # Wait for MongoDB to be ready
 else
-  echo "No JavaScript files found. Skipping ESLint."
+    echo "Unsupported OS: $OSTYPE"
+    exit 1
 fi
 
-# Run Tests with Coverage
+# Check for JavaScript files before running ESLint to avoid errors
+if find . -name '*.js' 2>/dev/null | grep -q .; then
+    echo "Running ESLint..."
+    npx eslint .
+else
+    echo "No JavaScript files found, skipping ESLint."
+fi
+
 echo "Running Tests with Coverage..."
 npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/chargePoint.test.js
 mocha --exit ev-charging-api/test/chargeStation.test.js
