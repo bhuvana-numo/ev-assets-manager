@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Exit on error and enable debug mode
+# Exit on any error and enable debug mode
 set -e
 set -x 
 
@@ -25,16 +25,14 @@ else
     echo "No JavaScript files found, skipping ESLint."
 fi
 
-# Run tests with NYC coverage
+# Run tests with coverage
 echo "Running Tests with Coverage..."
-export MONGODB_URI="mongodb://localhost:27017/testdb"
+export MONGODB_URI="mongodb://localhost:27017/testdb"  # Ensure MongoDB URI is set
+npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/chargePoint.test.js
+npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/chargeStation.test.js
+npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/connector.test.js
+npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/location.test.js
 
-# Ensure NYC is installed
-npm install --save-dev nyc
-
-npx nyc --reporter=lcov --reporter=text --reporter=json-summary mocha --exit "ev-charging-api/test/*.test.js"
-
-# Debug coverage output
 echo "Checking if coverage folder exists..."
 ls -l coverage || echo "No coverage folder found"
 
