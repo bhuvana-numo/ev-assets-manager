@@ -12,20 +12,20 @@ jobs:
   lint-and-test:
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --host localhost --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Install MongoDB Manually
-        run: |
-          wget -qO - https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
-          echo "deb [signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg arch=amd64] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-org
-          sudo systemctl start mongod
-          sudo systemctl enable mongod
-
-
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -35,9 +35,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Wait for MongoDB to be ready
+        run: |
+          echo "Waiting for MongoDB to be ready..."
+          until nc -z localhost 27017; do
+            sleep 1
+          done
+          echo "MongoDB is ready!"
+
+      - name: Set environment variables
+        run: echo "MONGODB_URI=mongodb://localhost:27017/testdb" >> $GITHUB_ENV
+
       - name: Run checkmycode.sh
         run: bash checkmycode.sh
-
-      
-
-     

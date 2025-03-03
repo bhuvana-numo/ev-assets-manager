@@ -1,29 +1,21 @@
 #!/bin/bash
 
-# Exit on any error
+# Exit on any error and enable debug mode
 set -e
 set -x 
 
-# Check if node_modules exists; if not, install dependencies
+# Ensure dependencies are installed
 if [ ! -d ./node_modules ]; then
     echo "Installing dependencies..."
     npm install
 fi
 
-# Start MongoDB based on OS
-echo "Starting MongoDB..."
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    echo "Running on Linux..."
-    sudo systemctl start mongod  # FIXED: Correct MongoDB service name
-    sleep 5  # Wait for MongoDB to be ready
-elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
-    echo "Running on Windows..."
-    C:/mongodb/bin/mongod --dbpath C:/mongodb/data &
-    sleep 5  # Wait for MongoDB to be ready
-else
-    echo "Unsupported OS: $OSTYPE"
-    exit 1
-fi
+# Wait for MongoDB to be ready
+echo " Waiting for MongoDB to be ready..."
+until nc -z localhost 27017; do
+  sleep 1
+done
+echo "MongoDB is up and running!"
 
 # Check for JavaScript files before running ESLint
 if find . -name '*.js' 2>/dev/null | grep -q .; then
@@ -35,6 +27,7 @@ fi
 
 # Run tests with coverage
 echo "Running Tests with Coverage..."
+export MONGODB_URI="mongodb://localhost:27017/testdb"  # Ensure MongoDB URI is set
 npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/chargePoint.test.js
 npx mocha --exit ev-charging-api/test/chargeStation.test.js
 npx mocha --exit ev-charging-api/test/connector.test.js
@@ -42,9 +35,16 @@ npx mocha --exit ev-charging-api/test/location.test.js
 
 # Extract test coverage percentage
 COVERAGE=$(grep -o '"lines":{"total":[0-9]*,"covered":[0-9]*,"skipped":[0-9]*,"pct":[0-9.]*}' coverage/coverage-summary.json | grep -o '"pct":[0-9.]*' | grep -o '[0-9.]*' | head -1)
+
+# Handle missing coverage file scenario
+if [ -z "$COVERAGE" ]; then
+  echo " Coverage report not found. Make sure tests are running correctly."
+  exit 1
+fi
+
 echo "Test Coverage: ${COVERAGE}%"
 
-# Convert coverage to integer (remove decimal)
+# Convert coverage to an integer (remove decimal)
 COVERAGE_INT=${COVERAGE%.*}
 
 if [ "$COVERAGE_INT" -lt 50 ]; then
@@ -52,4 +52,4 @@ if [ "$COVERAGE_INT" -lt 50 ]; then
   exit 1
 fi
 
-echo "✅ Check Complete :)"
+echo " All checks passed successfully!"
