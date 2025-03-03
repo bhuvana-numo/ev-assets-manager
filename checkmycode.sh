@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Exit on any error and enable debug mode
+# Exit on error and enable debug mode
 set -e
 set -x 
 
@@ -25,13 +25,21 @@ else
     echo "No JavaScript files found, skipping ESLint."
 fi
 
-# Run tests with coverage
+# Run tests with NYC coverage
 echo "Running Tests with Coverage..."
-export MONGODB_URI="mongodb://localhost:27017/testdb"  # Ensure MongoDB URI is set
-npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/chargePoint.test.js
-npx mocha --exit ev-charging-api/test/chargeStation.test.js
-npx mocha --exit ev-charging-api/test/connector.test.js
-npx mocha --exit ev-charging-api/test/location.test.js
+export MONGODB_URI="mongodb://localhost:27017/testdb"
+
+# Ensure NYC is installed
+npm install --save-dev nyc
+
+npx nyc --reporter=lcov --reporter=text --reporter=json-summary mocha --exit "ev-charging-api/test/*.test.js"
+
+# Debug coverage output
+echo "Checking if coverage folder exists..."
+ls -l coverage || echo "No coverage folder found"
+
+echo "Checking if coverage-summary.json exists..."
+ls -l coverage/coverage-summary.json || echo "No coverage-summary.json found"
 
 # Extract test coverage percentage
 COVERAGE=$(grep -o '"lines":{"total":[0-9]*,"covered":[0-9]*,"skipped":[0-9]*,"pct":[0-9.]*}' coverage/coverage-summary.json | grep -o '"pct":[0-9.]*' | grep -o '[0-9.]*' | head -1)
