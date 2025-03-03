@@ -2,7 +2,7 @@ process.env.NODE_ENV = "test";
 
 const mongoose = require("mongoose");
 const request = require("supertest");
-const { expect } = require("chai");
+const { expect } = require("chai").default;
 const ChargePoint = require("../models/ChargePoint");
 const ChargeStation = require("../models/ChargeStation");
 const app = require("../server");
