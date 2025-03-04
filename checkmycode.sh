@@ -11,7 +11,7 @@ if [ ! -d ./node_modules ]; then
 fi
 
 # Wait for MongoDB to be ready
-echo " Waiting for MongoDB to be ready..."
+echo "Waiting for MongoDB to be ready..."
 until nc -z localhost 27017; do
   sleep 1
 done
@@ -25,28 +25,30 @@ else
     echo "No JavaScript files found, skipping ESLint."
 fi
 
-# Run tests with coverage
+# Run tests one by one with NYC tracking
 echo "Running Tests with Coverage..."
-export MONGODB_URI="mongodb://localhost:27017/testdb"  # Ensure MongoDB URI is set
-npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/chargePoint.test.js
-npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/chargeStation.test.js
-npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/connector.test.js
-npx nyc --reporter=lcov --reporter=text mocha --exit ev-charging-api/test/location.test.js
+export MONGODB_URI="mongodb://localhost:27017/testdb"
 
-echo "Checking if coverage folder exists..."
-ls -l coverage || echo "No coverage folder found"
+# Clean previous NYC data
+rm -rf .nyc_output coverage
 
-echo "Checking if coverage-summary.json exists..."
-ls -l coverage/coverage-summary.json || echo "No coverage-summary.json found"
+# Run tests sequentially, merging coverage reports
+for test_file in ev-charging-api/test/*.test.js; do
+    echo "Running test: $test_file"
+    npx nyc --silent --reporter=none mocha --exit "$test_file"
+done
+
+# Generate final coverage reports
+npx nyc report --reporter=lcov --reporter=text --reporter=json-summary
+
+# Verify coverage report exists
+if [ ! -f coverage/coverage-summary.json ]; then
+  echo "Coverage report not found. Make sure tests are running correctly."
+  exit 1
+fi
 
 # Extract test coverage percentage
 COVERAGE=$(grep -o '"lines":{"total":[0-9]*,"covered":[0-9]*,"skipped":[0-9]*,"pct":[0-9.]*}' coverage/coverage-summary.json | grep -o '"pct":[0-9.]*' | grep -o '[0-9.]*' | head -1)
-
-# Handle missing coverage file scenario
-if [ -z "$COVERAGE" ]; then
-  echo " Coverage report not found. Make sure tests are running correctly."
-  exit 1
-fi
 
 echo "Test Coverage: ${COVERAGE}%"
 
@@ -58,4 +60,4 @@ if [ "$COVERAGE_INT" -lt 50 ]; then
   exit 1
 fi
 
-echo " All checks passed successfully!"
+echo "All checks passed successfully!"
