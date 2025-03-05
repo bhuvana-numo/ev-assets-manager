@@ -42,6 +42,16 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get("/location/:locationId", async (req, res) => {
+    try {
+        const chargeStations = await ChargeStation.find({ locationId: req.params.locationId });
+        res.json(chargeStations);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching charge stations", error });
+    }
+});
+
+
 // Update a Charge Station
 router.put('/:id', async (req, res) => {
     try {

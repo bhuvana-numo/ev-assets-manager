@@ -49,7 +49,7 @@ describe("Locations API", () => {
 
             const res = await request(app).get(`/locations/${location._id}`).expect(200);
 
-            console.log("API Response:", res.body);
+            
 
 
             expect(res.body).to.have.property("_id").that.equals(location._id.toString());

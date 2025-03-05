@@ -24,6 +24,8 @@
         "globals": "^15.15.0",
         "jscpd": "^3.3.26",
         "mocha": "^11.1.0",
+        "nyc": "^17.1.0",
+        "sinon": "^19.0.2",
         "supertest": "^7.0.0",
         "typescript-eslint": "^8.24.1"
     },

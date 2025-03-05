@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
 });
 
 // **READ**: Get a single location by ID
-// **READ**: Get a single location by ID
+
 router.get("/:id", async (req, res) => {
     try {
         const location = await Location.findById(req.params.id);

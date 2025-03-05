@@ -5,6 +5,7 @@ const request = require("supertest");
 const { expect } = require("chai");
 const ChargeStation = require("../models/ChargeStation");
 const app = require("../server");
+const sinon = require("sinon");
 
 describe("ChargeStations API", () => {
     before(async () => {
@@ -21,6 +22,14 @@ describe("ChargeStations API", () => {
             expect(res.body).to.be.an("array");
             expect(res.body.length).to.equal(0);
         });
+        it("should return 500 if database query fails", async () => {
+            sinon.stub(ChargeStation, "find").throws(new Error("Database Error"));
+        
+            const res = await request(app).get("/chargeStations").expect(500);
+            expect(res.body).to.have.property("error").that.includes("Internal Server Error");
+        
+            ChargeStation.find.restore();
+        });
     });
 
     describe("POST /chargeStations", () => {
@@ -35,6 +44,16 @@ describe("ChargeStations API", () => {
         it("should return 400 for missing name field", async () => {
             const res = await request(app).post("/chargeStations").send({}).expect(400);
             expect(res.body).to.have.property("error").that.includes("`name` is required");
+        });
+        it("should return 500 if charge station creation fails", async () => {
+            sinon.stub(ChargeStation.prototype, "save").throws(new Error("Database Save Error"));
+        
+            const chargeStation = { name: "Faulty Station" };
+            const res = await request(app).post("/chargeStations").send(chargeStation).expect(500);
+        
+            expect(res.body).to.have.property("error").that.includes("Internal Server Error");
+        
+            ChargeStation.prototype.save.restore();
         });
     });
 
@@ -53,6 +72,11 @@ describe("ChargeStations API", () => {
             const res = await request(app).get(`/chargeStations/${nonExistentId}`).expect(404);
             expect(res.body).to.have.property("error").that.includes("Charge Station not found");
         });
+        it("should return 400 for an invalid charge station ID format", async () => {
+            const res = await request(app).get("/chargeStations/invalidID").expect(400);
+            expect(res.body).to.have.property("error").that.includes("Invalid ID format");
+        });
+        
     });
 
     describe("PUT /chargeStations/:id", () => {
@@ -74,6 +98,7 @@ describe("ChargeStations API", () => {
             const res = await request(app).put(`/chargeStations/${chargeStation._id}`).send({ invalidField: "test" }).expect(400);
             expect(res.body).to.have.property("error").that.includes("Invalid field");
         });
+        
     });
 
     describe("DELETE /chargeStations/:id", () => {
@@ -93,6 +118,11 @@ describe("ChargeStations API", () => {
             const res = await request(app).delete(`/chargeStations/${nonExistentId}`).expect(404);
             expect(res.body).to.have.property("error").that.includes("Charge Station not found");
         });
+        it("should return 400 for an invalid ID format when deleting", async () => {
+            const res = await request(app).delete("/chargeStations/invalidID").expect(400);
+            expect(res.body).to.have.property("error").that.includes("Invalid ID format");
+        });
+        
     });
 
     after(async () => {
