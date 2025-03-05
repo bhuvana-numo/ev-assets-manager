@@ -1,10 +1,7 @@
-process.env.NODE_ENV = "test";
-
-const mongoose = require("mongoose");
-const request = require("supertest");
-const { expect } = require("chai");
+const { mongoose, request, expect, app } = require("./setup");
 const Location = require("../models/Location");
-const app = require("../server");
+
+
 
 describe("Locations API", () => {
     before(async () => {
@@ -27,7 +24,7 @@ describe("Locations API", () => {
 
     describe("POST /locations", () => {
         it("should POST a new location", async () => {
-            const location = { name: "Test Location", city: "Test City", country: "Test Country" };
+            const location = { name: "location-3", city: "hyderabad", country: "india" };
             const res = await request(app).post("/locations").send(location).expect(201);
 
 
@@ -41,10 +38,10 @@ describe("Locations API", () => {
     describe("GET /locations/:id", () => {
         it("should GET a location by the given id", async () => {
             const location = new Location({
-                name: "Test Location",
-                city: "Test City",
-                country: "Test Country",
-            });
+                name: "location-2",
+                city: "delhi",
+                country: "india"
+                });
             await location.save();
 
             const res = await request(app).get(`/locations/${location._id}`).expect(200);
@@ -53,9 +50,9 @@ describe("Locations API", () => {
 
 
             expect(res.body).to.have.property("_id").that.equals(location._id.toString());
-            expect(res.body).to.have.property("name").that.equals("Test Location");
-            expect(res.body).to.have.property("city").that.equals("Test City");
-            expect(res.body).to.have.property("country").that.equals("Test Country");
+            expect(res.body).to.have.property("name").that.equals("location-2");
+            expect(res.body).to.have.property("city").that.equals("delhi");
+            expect(res.body).to.have.property("country").that.equals("india");
         });
     });
 
@@ -64,12 +61,12 @@ describe("Locations API", () => {
             const location = new Location({ name: "Old Location", city: "Old City", country: "Old Country" });
             await location.save();
 
-            const updatedData = { name: "Updated Location", city: "Updated City", country: "Updated Country" };
+            const updatedData = { name: "location-5", city: "banglore", country: "india" };
             const res = await request(app).put(`/locations/${location._id}`).send(updatedData).expect(200);
 
 
             expect(res.body).to.have.property("_id").that.equals(location._id.toString());
-            expect(res.body).to.have.property("name").that.equals("Updated Location");
+            expect(res.body).to.have.property("name").that.equals("location-5");
             expect(res.body).to.have.property("city").that.equals("Updated City");
             expect(res.body).to.have.property("country").that.equals("Updated Country");
         });

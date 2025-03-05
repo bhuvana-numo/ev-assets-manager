@@ -29,7 +29,6 @@ for test_file in ev-charging-api/test/*.test.js; do
 done
 
 
-npx nyc report --reporter=lcov --reporter=text --reporter=json-summary
 
 # Clean previous NYC data
 rm -rf .nyc_output coverage
