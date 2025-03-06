@@ -29,12 +29,11 @@ router.get("/:id", async (req, res) => {
     try {
         const location = await Location.findById(req.params.id);
         if (!location) {
-            return res.status(404).json({ error: "Location not found" });
+            return res.status(404).json({ error: err.message });
         }
         res.json(location);
     } catch (err) {
-        console.error("Error fetching location:", err.message); // Log the error
-        res.status(400).json({ error: err.message || "Invalid ID format" });
+        res.status(400).json({ error: err.message });
     }
 });
 

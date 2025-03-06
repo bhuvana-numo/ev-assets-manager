@@ -1,6 +1,6 @@
 const express = require('express');
 const ChargePoint = require('../models/ChargePoint');
-const router = express.Router();
+const router = express.Router('./testapiresponse.js');
 
 // Create a new Charge Point
 router.post('/', async (req, res) => {
@@ -44,6 +44,7 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({ error: error.message || "Internal Server Error" });
     }
 });
+
 
 // Update a Charge Point
 router.put('/:id', async (req, res) => {

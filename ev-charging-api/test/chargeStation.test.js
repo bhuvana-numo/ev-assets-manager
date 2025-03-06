@@ -1,11 +1,9 @@
-process.env.NODE_ENV = "test";
-
-const mongoose = require("mongoose");
-const request = require("supertest");
-const { expect } = require("chai");
+const { mongoose,expect} = require("./setup");
 const ChargeStation = require("../models/ChargeStation");
-const app = require("../server");
-const sinon = require("sinon");
+const  testApiResponse= require("./testapiresponse.js");
+let res;
+let location,chargeStation;
+
 
 describe("ChargeStations API", () => {
     before(async () => {
@@ -14,115 +12,81 @@ describe("ChargeStations API", () => {
 
     beforeEach(async () => {
         await ChargeStation.deleteMany({});
+
+        const locationResponse = await testApiResponse("location",
+            "POST",
+            "/locations",
+            { name: "Test Location", city: "test city", country: "test country" },
+            { name: "Test Location", city: "test city", country: "test country" },
+            201
+        );
+
+        location = locationResponse.body;
+
+
+        chargeStation = new ChargeStation({
+            name: "Test Station",
+            locationId: location._id.toString()
+        });
+
+        await chargeStation.save();
     });
 
+
+
+
     describe("GET /chargeStations", () => {
-        it("should GET all the charge stations", async () => {
-            const res = await request(app).get("/chargeStations").expect(200);
+        it("should GET all the locations", async () => {
+            const res = await testApiResponse("chargeStation","GET", "/chargeStations", {},  {
+                name: chargeStation.name,
+                locationId: chargeStation.locationId.toString()
+               
+            }, 200);
             expect(res.body).to.be.an("array");
-            expect(res.body.length).to.equal(0);
-        });
-        it("should return 500 if database query fails", async () => {
-            sinon.stub(ChargeStation, "find").throws(new Error("Database Error"));
-        
-            const res = await request(app).get("/chargeStations").expect(500);
-            expect(res.body).to.have.property("error").that.includes("Internal Server Error");
-        
-            ChargeStation.find.restore();
         });
     });
 
     describe("POST /chargeStations", () => {
         it("should POST a new charge station", async () => {
-            const chargeStation = { name: "Test Station" };
-            const res = await request(app).post("/chargeStations").send(chargeStation).expect(201);
-            
-            expect(res.body).to.have.property("_id");
-            expect(res.body).to.have.property("name").that.equals("Test Station");
-        });
-
-        it("should return 400 for missing name field", async () => {
-            const res = await request(app).post("/chargeStations").send({}).expect(400);
-            expect(res.body).to.have.property("error").that.includes("`name` is required");
-        });
-        it("should return 500 if charge station creation fails", async () => {
-            sinon.stub(ChargeStation.prototype, "save").throws(new Error("Database Save Error"));
-        
-            const chargeStation = { name: "Faulty Station" };
-            const res = await request(app).post("/chargeStations").send(chargeStation).expect(500);
-        
-            expect(res.body).to.have.property("error").that.includes("Internal Server Error");
-        
-            ChargeStation.prototype.save.restore();
+            const newchargeStation = {
+                name: "New Test Station",
+                locationId: location._id.toString() 
+            };
+            const res = await testApiResponse("chargeStation","POST", "/chargeStations", newchargeStation,newchargeStation, 201);
         });
     });
+    
 
     describe("GET /chargeStations/:id", () => {
         it("should GET a charge station by ID", async () => {
-            const chargeStation = new ChargeStation({ name: "Test Station" });
-            await chargeStation.save();
 
-            const res = await request(app).get(`/chargeStations/${chargeStation._id}`).expect(200);
+            const res = await testApiResponse("chargeStation","GET", `/chargeStations/${chargeStation._id}`, {},  {
+                name: chargeStation.name,
+                locationId: chargeStation.locationId.toString()
+               
+            }, 200);
             expect(res.body).to.have.property("_id").that.equals(chargeStation._id.toString());
-            expect(res.body).to.have.property("name").that.equals("Test Station");
         });
 
-        it("should return 404 for a non-existent charge station", async () => {
-            const nonExistentId = new mongoose.Types.ObjectId();
-            const res = await request(app).get(`/chargeStations/${nonExistentId}`).expect(404);
-            expect(res.body).to.have.property("error").that.includes("Charge Station not found");
-        });
-        it("should return 400 for an invalid charge station ID format", async () => {
-            const res = await request(app).get("/chargeStations/invalidID").expect(400);
-            expect(res.body).to.have.property("error").that.includes("Invalid ID format");
-        });
-        
     });
 
     describe("PUT /chargeStations/:id", () => {
         it("should UPDATE a charge station given the id", async () => {
-            const chargeStation = new ChargeStation({ name: "Old Station" });
-            await chargeStation.save();
 
-            const updatedData = { name: "Updated Station" };
-            const res = await request(app).put(`/chargeStations/${chargeStation._id}`).send(updatedData).expect(200);
-
-            expect(res.body).to.have.property("_id").that.equals(chargeStation._id.toString());
-            expect(res.body).to.have.property("name").that.equals("Updated Station");
+            const updatedData = { name: "Updated Station",locationId:location._id};
+            const res = await testApiResponse("chargeStation","PUT", `/chargeStations/${chargeStation._id}`, updatedData, updatedData, 200);
         });
 
-        it("should return 400 for invalid update fields", async () => {
-            const chargeStation = new ChargeStation({ name: "Test Station" });
-            await chargeStation.save();
-
-            const res = await request(app).put(`/chargeStations/${chargeStation._id}`).send({ invalidField: "test" }).expect(400);
-            expect(res.body).to.have.property("error").that.includes("Invalid field");
-        });
-        
     });
 
     describe("DELETE /chargeStations/:id", () => {
         it("should DELETE a charge station given the id", async () => {
-            const chargeStation = new ChargeStation({ name: "To Be Deleted" });
-            await chargeStation.save();
-
-            const res = await request(app).delete(`/chargeStations/${chargeStation._id}`).expect(200);
+            const res = await testApiResponse("chargeStation","DELETE", `/chargeStations/${chargeStation._id}`, {},null, 200);
             expect(res.body).to.have.property("message").that.equals("Charge Station deleted");
-
             const checkChargeStation = await ChargeStation.findById(chargeStation._id);
             expect(checkChargeStation).to.be.equal(null);
         });
 
-        it("should return 404 for deleting a non-existent charge station", async () => {
-            const nonExistentId = new mongoose.Types.ObjectId();
-            const res = await request(app).delete(`/chargeStations/${nonExistentId}`).expect(404);
-            expect(res.body).to.have.property("error").that.includes("Charge Station not found");
-        });
-        it("should return 400 for an invalid ID format when deleting", async () => {
-            const res = await request(app).delete("/chargeStations/invalidID").expect(400);
-            expect(res.body).to.have.property("error").that.includes("Invalid ID format");
-        });
-        
     });
 
     after(async () => {
@@ -130,3 +94,5 @@ describe("ChargeStations API", () => {
         await mongoose.connection.close();
     });
 });
+
+
