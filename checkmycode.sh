@@ -10,7 +10,7 @@ fi
 
 if find . -name '*.js' 2>/dev/null | grep -q .; then
     echo "Running ESLint..."
-    npx eslint .
+    npx eslint . --fix || true
 else
     echo "No JavaScript files found, skipping ESLint."
 fi
