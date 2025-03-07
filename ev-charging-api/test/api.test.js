@@ -14,19 +14,19 @@ describe("API Tests for All Collections", function () {
     before(async function () {
         await mongoose.connection.dropDatabase();
     
-        // ✅ Create Location first
+        
         const location = await Location.create(testData.location);
         testData.chargeStation.locationId = location._id;  // Set correct ObjectId
     
-        // ✅ Create ChargeStation next
+        
         const chargeStation = await ChargeStation.create(testData.chargeStation);
         testData.chargePoint.stationId = chargeStation._id;  // Set correct ObjectId
     
-        // ✅ Create ChargePoint next
+      
         const chargePoint = await ChargePoint.create(testData.chargePoint);
         testData.connector.chargePointId = chargePoint._id;  // Set correct ObjectId
     
-        // ✅ Finally, create Connector
+      
         await Connector.create(testData.connector);
     });
     

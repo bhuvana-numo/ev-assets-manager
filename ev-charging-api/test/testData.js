@@ -10,7 +10,7 @@ module.exports = {
     },
     chargePoint: { 
         stationId: null,  // Will be set dynamically in the test
-        type: "Fast AC"  // Since `type` is required
+        type: "Fast AC"  
     },
     connector: { 
         chargePointId: null,  // Will be set dynamically in the test
