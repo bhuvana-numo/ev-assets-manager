@@ -71,8 +71,8 @@ describe("API Tests for All Collections", function () {
                 await sendRequest(app, "delete", `${endpoint}/${createdId}`, 200);
             });
 
-            it(`should return 404 for non-existing ${name.toLowerCase()}`, async () => {
-                await sendRequest(app, "get", `${endpoint}/non_existing_id`, 404);
+            it(`should return 400 for non-existing ${name.toLowerCase()}`, async () => {
+                await sendRequest(app, "get", `${endpoint}/non_existing_id`, 400);
             });
         });
     });

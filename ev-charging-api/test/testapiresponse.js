@@ -8,10 +8,20 @@ const sendRequest = async (app, method, endpoint, expectedStatus, sendData = {})
     return res;
 };
 
-const validateResponse = (res, expectedData) => {
-    if (Object.keys(expectedData).length > 0) {
-        expect(res.body).to.deep.include(expectedData);
-    }
+const mongoose = require("mongoose");
+
+const normalizeObject = (obj) => {
+    return Object.keys(obj).reduce((acc, key) => {
+        acc[key] = mongoose.Types.ObjectId.isValid(obj[key]) ? obj[key].toString() : obj[key];
+        return acc;
+    }, {});
 };
+
+const validateResponse = (res, expectedData) => {
+    const expectedNormalized = normalizeObject(expectedData);
+    const responseNormalized = normalizeObject(res.body);
+    expect(responseNormalized).to.deep.include(expectedNormalized);
+};
+
 
 module.exports = { sendRequest, validateResponse };
