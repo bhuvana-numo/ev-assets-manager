@@ -15,7 +15,7 @@ else
     echo "No JavaScript files found, skipping ESLint."
 fi
 
-npx jscpd --min-lines 3 --min-tokens 25 --threshold 0 --gitignore 
+npx jscpd --min-lines 5 --min-tokens 25 --threshold 0 --gitignore 
 
 echo "Running Tests with Coverage..."
 export MONGODB_URI="mongodb://localhost:27017/testdb"

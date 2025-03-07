@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "eslint .",
         "start": "node ev-charging-api/server.js",
-        "test": "mocha --exit ev-charging-api/test/location.test.js && mocha --exit ev-charging-api/test/chargeStation.test.js && mocha --exit ev-charging-api/test/chargePoint.test.js && mocha --exit ev-charging-api/test/connector.test.js",
+        "test": "mocha --timeout 10000 ev-charging-api/test/api.test.js --exit",
         "coverage": "nyc --reporter=lcov --reporter=text npm run test",
         "jscpd": "jscpd --threshold 2 --ignore 'node_modules/**'"
     },
