@@ -1,9 +1,5 @@
 const mongoose = require("mongoose");
 
-const locationId = new mongoose.Types.ObjectId();
-const stationId = new mongoose.Types.ObjectId();
-const chargePointId = new mongoose.Types.ObjectId();
-
 module.exports = {
     location: { 
         name: "Test Location", 
