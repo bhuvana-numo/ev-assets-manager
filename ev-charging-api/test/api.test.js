@@ -1,6 +1,6 @@
 const app = require("../server");
 const mongoose = require("mongoose");
-const { sendRequest, validateResponse } = require("./testApiResponse");
+const { sendRequest, validateResponse } = require("./testapiResponse");
 const Location = require("../models/Location");
 const ChargeStation = require("../models/ChargeStation");
 const ChargePoint = require("../models/ChargePoint");
