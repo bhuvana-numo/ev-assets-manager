@@ -13,27 +13,27 @@ describe("API Tests for All Collections", function () {
 
     before(async function () {
         await mongoose.connection.dropDatabase();
-    
-        
+
+
         const location = await Location.create(testData.location);
         testData.chargeStation.locationId = location._id;  // Set correct ObjectId
-    
-        
+
+
         const chargeStation = await ChargeStation.create(testData.chargeStation);
         testData.chargePoint.stationId = chargeStation._id;  // Set correct ObjectId
-    
-      
+
+
         const chargePoint = await ChargePoint.create(testData.chargePoint);
         testData.connector.chargePointId = chargePoint._id;  // Set correct ObjectId
-    
-      
+
+
         await Connector.create(testData.connector);
     });
-    
+
     after(async function () {
         await mongoose.connection.close();
     });
-   
+
 
     const apiTests = [
         { name: "Location", type: "location", data: testData.location },
@@ -72,27 +72,39 @@ describe("API Tests for All Collections", function () {
                 await sendRequest(app, "delete", `${endpoint}/${createdId}`, 200);
             });
 
-            it(`should return 400 for non-existing ${name.toLowerCase()}`, async () => {
-                await sendRequest(app, "get", `${endpoint}/non_existing_id`, 400);
+            const invalidId = "invalid_id";
+
+            ["get", "put", "delete"].forEach((method) => {
+                it(`should return 400 for ${method.toUpperCase()} request with invalid ${name.toLowerCase()} id like string `, async () => {
+                    const requestData = method === "put" ? { name: "UpdatedName" } : undefined;
+                    await sendRequest(app, method, `${endpoint}/${invalidId}`, 400, requestData);
+                });
             });
+
 
 
             it(`should return 400 when creating ${name.toLowerCase()} with missing fields`, async () => {
                 const invalidData = {};
-            
+
                 console.log(`[TEST] Sending invalid data to ${endpoint}:`, invalidData);
-            
+
                 const res = await sendRequest(app, "post", endpoint, 400, invalidData);
 
-            
+
                 console.log(`[TEST] Received response:`, res.status, res.body);
 
             });
-            
 
-            it(`should return 404 for fetching non-existent ${name.toLowerCase()}`, async () => {
-                await sendRequest(app, "get", `${endpoint}/65f123456789012345678901`, 404);
+
+            const nonExistentId = "65f123456789012345678901"; // A valid ObjectId but doesn't exist in DB
+
+            ["get", "put", "delete"].forEach((method) => {
+                it(`should return 404 for ${method.toUpperCase()} request with non-existent ${name.toLowerCase()} id`, async () => {
+                    const requestData = method === "put" ? { name: "UpdatedName" } : undefined;
+                    await sendRequest(app, method, `${endpoint}/${nonExistentId}`, 404, requestData);
+                });
             });
+
 
             it(`should return an empty array if no ${name.toLowerCase()} exists`, async () => {
                 await mongoose.connection.dropDatabase();
@@ -107,9 +119,9 @@ describe("API Tests for All Collections", function () {
                 const res = await sendRequest(app, "get", "/location", 500);
                 await mongoose.connect("mongodb://localhost:27017/evChargingDB"); // Restore connection
             });
-            
 
-          
+
+
         });
     });
 });
