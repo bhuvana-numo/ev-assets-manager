@@ -23,10 +23,24 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const actions = {
     POST: async (req, Model) => {
         console.log("[POST] Data received:", req.body);
-        const data = new Model(req.body);
-        await data.save();
-        console.log("[POST] Created:", data);
-        return { status: 201, data };
+        
+        try {
+            const data = new Model(req.body);
+            await data.save();
+            console.log("[POST] Created:", data);
+            return { status: 201, data };
+        } catch (error) {
+            console.error("[ERROR] Validation Failed:", error);
+
+            if (error.name === "ValidationError") {
+                return { 
+                    status: 400, 
+                    error: Object.values(error.errors).map(err => err.message) 
+                };  
+            }
+
+            return { status: 500, error: "Internal Server Error" };
+        }
     },
     GET: async (req, Model, populateField) => {
         console.log("[GET] Request:", req.params.id ? `ID: ${req.params.id}` : "Fetching all");

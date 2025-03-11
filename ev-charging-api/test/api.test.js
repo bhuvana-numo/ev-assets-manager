@@ -33,6 +33,7 @@ describe("API Tests for All Collections", function () {
     after(async function () {
         await mongoose.connection.close();
     });
+   
 
     const apiTests = [
         { name: "Location", type: "location", data: testData.location },
@@ -74,6 +75,34 @@ describe("API Tests for All Collections", function () {
             it(`should return 400 for non-existing ${name.toLowerCase()}`, async () => {
                 await sendRequest(app, "get", `${endpoint}/non_existing_id`, 400);
             });
+
+
+            it(`should return 400 when creating ${name.toLowerCase()} with missing fields`, async () => {
+                const invalidData = {};
+            
+                console.log(`[TEST] Sending invalid data to ${endpoint}:`, invalidData);
+            
+                const res = await sendRequest(app, "post", endpoint, 400, invalidData);
+
+            
+                console.log(`[TEST] Received response:`, res.status, res.body);
+
+            });
+            
+
+            it(`should return 404 for fetching non-existent ${name.toLowerCase()}`, async () => {
+                await sendRequest(app, "get", `${endpoint}/65f123456789012345678901`, 404);
+            });
+
+            it(`should return an empty array if no ${name.toLowerCase()} exists`, async () => {
+                await mongoose.connection.dropDatabase();
+                const res = await sendRequest(app, "get", endpoint, 200);
+                if (!Array.isArray(res.body) || res.body.length !== 0) {
+                    throw new Error(`Expected empty array, found ${res.body.length} items`);
+                }
+            });
+
+          
         });
     });
 });
