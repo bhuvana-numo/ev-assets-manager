@@ -102,6 +102,13 @@ describe("API Tests for All Collections", function () {
                 }
             });
 
+            it("should handle database connection failure", async () => {
+                await mongoose.connection.close(); // Simulate DB failure
+                const res = await sendRequest(app, "get", "/location", 500);
+                await mongoose.connect("mongodb://localhost:27017/evChargingDB"); // Restore connection
+            });
+            
+
           
         });
     });
