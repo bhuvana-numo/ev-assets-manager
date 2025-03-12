@@ -8,6 +8,6 @@ const sendRequest = async (app, method, endpoint, expectedStatus, sendData = {})
     return res;
 };
 
-const mongoose = require("mongoose");
+
 
 module.exports = { sendRequest};

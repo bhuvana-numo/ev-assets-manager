@@ -92,7 +92,7 @@ describe("API Tests for All Collections", function () {
                     delete filteredDependentIds.locationId;
                 }
 
-                const res = await sendRequest(app, "post", endpoint, 201, { ...data, ...filteredDependentIds });
+                await sendRequest(app, "post", endpoint, 201, { ...data, ...filteredDependentIds });
 
             });
 
@@ -207,7 +207,7 @@ describe("MongoDB Down Scenario", function () {
     });
 
     it("should return an error when MongoDB is down", async function () {
-        const res = await sendRequest(app, "get", "/location", 500);
+        await sendRequest(app, "get", "/location", 500);
     });
 
     after(async function () {

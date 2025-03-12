@@ -63,26 +63,7 @@ const actions = {
     },
 };
 
-// 🔹 Register CRUD routes dynamically
-Object.entries(models).forEach(([route, Model]) => {
-    const populateField = populateMap[route] || null;
 
-    ["POST", "GET", "PUT", "DELETE"].forEach((method) => {
-        const path =
-            method === "POST" ? `/${route}` :
-            method === "GET" ? `/${route}/:id?` :
-            `/${route}/:id`;
-
-        router[method.toLowerCase()](path, async (req, res) => {
-            try {
-                const result = await actions[method](req, Model, populateField);
-                res.status(result.status).json(result.data || { error: result.error });
-            } catch (error) {
-                res.status(500).json({ error: "Internal Server Error" });
-            }
-        });
-    });
-});
 
 // 🔹 Additional Routes (Filter-based Queries)
 const dynamicRoutes = [
@@ -94,19 +75,43 @@ const dynamicRoutes = [
     { route: "connectors-by-chargestation", model: "connector", field: "stationId" },
 ];
 
+const handleRequest = async (req, res, action, Model, populateField = null, filter = null) => {
+    try {
+        if (req.params.id && !isValidObjectId(req.params.id)) {
+            return res.status(400).json({ error: "Invalid ObjectId"|| error.message });
+        }
+
+        const result = filter
+            ? await fetchData(Model, filter)
+            : await actions[action](req, Model, populateField);
+
+        res.status(result.status || 200).json(result.data || { error: result.error });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error"||error.message });
+    }
+};
+
+// 🔹 Register CRUD routes dynamically
+Object.entries(models).forEach(([route, Model]) => {
+    const populateField = populateMap[route] || null;
+
+    ["POST", "GET", "PUT", "DELETE"].forEach((method) => {
+        const path =
+            method === "POST" ? `/${route}` :
+            method === "GET" ? `/${route}/:id?` :
+            `/${route}/:id`;
+
+        router[method.toLowerCase()](path, (req, res) =>
+            handleRequest(req, res, method, Model, populateField)
+        );
+    });
+});
+
 // 🔹 Register dynamic filtering routes
 dynamicRoutes.forEach(({ route, model, field }) => {
-    router.get(`/${route}/:id`, async (req, res) => {
-        try {
-            if (!isValidObjectId(req.params.id)) {
-                return res.status(400).json({ error: "Invalid ObjectId" });
-            }
-            const data = await fetchData(models[model], { [field]: req.params.id });
-            res.status(200).json(data);
-        } catch (error) {
-            res.status(500).json({ error: "Internal Server Error" });
-        }
-    });
+    router.get(`/${route}/:id`, (req, res) =>
+        handleRequest(req, res, "GET", models[model], null, { [field]: req.params.id })
+    );
 });
 
 module.exports = router;
