@@ -1,5 +1,4 @@
 const express = require("express");
-const cors = require("cors");
 const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 const router = require("./routes/router"); // ✅ Import the merged router
@@ -7,7 +6,7 @@ const router = require("./routes/router"); // ✅ Import the merged router
 const app = express();
 connectDB();
 
-app.use(cors());
+
 app.use(bodyParser.json());
 
 

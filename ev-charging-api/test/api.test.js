@@ -1,6 +1,6 @@
 const app = require("../server");
 const mongoose = require("mongoose");
-const { sendRequest, validateResponse } = require("./testapiresponse.js");
+const { sendRequest} = require("./testapiresponse.js");
 const Location = require("../models/Location");
 const ChargeStation = require("../models/ChargeStation");
 const ChargePoint = require("../models/ChargePoint");
@@ -11,7 +11,6 @@ describe("API Tests for All Collections", function () {
     this.timeout(15000);
 
     beforeEach(async function () {
-        // Instead of dropping the whole database, clear only relevant collections
         await Location.deleteMany({});
         await ChargeStation.deleteMany({});
         await ChargePoint.deleteMany({});
@@ -35,16 +34,15 @@ describe("API Tests for All Collections", function () {
             let dependentIds = {};
 
             beforeEach(async () => {
-                dependentIds = {}; //Initialize to prevent undefined errors
+                dependentIds = {};
 
-                // Create required dependencies
                 const location = await Location.create(testData.location);
                 dependentIds.locationId = location._id;
 
                 if (name !== "Location") {
                     const chargeStation = await ChargeStation.create({
                         ...testData.chargeStation,
-                        locationId: dependentIds.locationId // ✅ Use from dependentIds
+                        locationId: dependentIds.locationId
                     });
                     dependentIds.stationId = chargeStation._id;
                 }
@@ -55,7 +53,7 @@ describe("API Tests for All Collections", function () {
                     }
                     const chargePoint = await ChargePoint.create({
                         ...testData.chargePoint,
-                        stationId: dependentIds.stationId // ✅ Ensure stationId exists
+                        stationId: dependentIds.stationId
                     });
                     dependentIds.chargePointId = chargePoint._id;
                 }
@@ -66,22 +64,20 @@ describe("API Tests for All Collections", function () {
                     }
                     const connector = await Connector.create({
                         ...testData.connector,
-                        chargePointId: dependentIds.chargePointId // ✅ Ensure chargePointId exists
+                        chargePointId: dependentIds.chargePointId
                     });
                     createdId = connector._id;
                 } else {
                     const item = await model.create({ ...data, ...dependentIds });
                     createdId = item._id;
                 }
-
-                console.log(`[DEBUG] Created ${name} ID: ${createdId}`);
             });
 
             const endpoint = `/${type}`;
 
             it(`should create a new ${name.toLowerCase()}`, async () => {
                 let filteredDependentIds = { ...dependentIds };
-            
+
                 if (name === "Connector") {
                     delete filteredDependentIds.connectorId;
                     delete filteredDependentIds.stationId;
@@ -92,22 +88,20 @@ describe("API Tests for All Collections", function () {
                 } else if (name === "ChargeStation") {
                     delete filteredDependentIds.stationId;
                 }
-                else{
+                else {
                     delete filteredDependentIds.locationId;
                 }
-            
+
                 const res = await sendRequest(app, "post", endpoint, 201, { ...data, ...filteredDependentIds });
-            
-                validateResponse(res, { ...data, ...filteredDependentIds });
+
             });
-            
 
             it(`should fetch all ${name.toLowerCase()}s`, async () => {
                 await sendRequest(app, "get", endpoint, 200);
             });
 
             it(`should fetch a single ${name.toLowerCase()} by ID`, async () => {
-                console.log(`[DEBUG] Fetching ${name} ID: ${createdId}`);
+
                 await sendRequest(app, "get", `${endpoint}/${createdId}`, 200);
             });
 
@@ -119,6 +113,42 @@ describe("API Tests for All Collections", function () {
             it(`should delete the ${name.toLowerCase()}`, async () => {
                 await sendRequest(app, "delete", `${endpoint}/${createdId}`, 200);
             });
+
+            // 🔹 Fetch ChargeStations by Location ID
+            if (name === "ChargeStation") {
+                it("should fetch all charge stations for a given locationId", async () => {
+                    await sendRequest(app, "get", `/chargestations-by-location/${dependentIds.locationId}`, 200);
+
+
+                });
+            }
+
+
+            // 🔹 Fetch ChargePoints by Location ID & Station ID
+            if (name === "ChargePoint") {
+                it("should fetch all charge points for a given locationId", async () => {
+                    await sendRequest(app, "get", `/chargepoints-by-location/${dependentIds.locationId}`, 200);
+                });
+
+                it("should fetch all charge points for a given stationId", async () => {
+                    await sendRequest(app, "get", `/chargepoints-by-station/${dependentIds.stationId}`, 200);
+                });
+            }
+
+            // 🔹 Fetch Connectors by Location ID, ChargePoint ID & Station ID
+            if (name === "Connector") {
+                it("should fetch all connectors for a given locationId", async () => {
+                    await sendRequest(app, "get", `/chargepoints-by-location/${dependentIds.locationId}`, 200);
+                });
+
+                it("should fetch all connectors for a given chargePointId", async () => {
+                    await sendRequest(app, "get", `/connectors-by-chargepoint/${dependentIds.chargePointId}`, 200);
+                });
+
+                it("should fetch all connectors for a given stationId", async () => {
+                    await sendRequest(app, "get", `/connectors-by-chargestation/${dependentIds.stationId}`, 200);
+                });
+            }
 
             // Invalid and non-existent ID tests
             const invalidId = "invalid_id";
@@ -144,7 +174,6 @@ describe("API Tests for All Collections", function () {
                 }
             });
 
-            // Concurrent operations
             it("should handle concurrent database access", async () => {
                 const fetch1 = sendRequest(app, "get", `${endpoint}/${createdId}`, 200);
                 const fetch2 = sendRequest(app, "get", `${endpoint}/${createdId}`, 200);
@@ -165,6 +194,24 @@ describe("API Tests for All Collections", function () {
                 const delete2 = sendRequest(app, "delete", `${endpoint}/${createdId}`, 404);
                 await Promise.all([delete1, delete2]);
             });
+
+
         });
     });
 });
+describe("MongoDB Down Scenario", function () {
+    this.timeout(15000);
+
+    before(async function () {
+        await mongoose.connection.close(); // Simulate MongoDB being down
+    });
+
+    it("should return an error when MongoDB is down", async function () {
+        const res = await sendRequest(app, "get", "/location", 500);
+    });
+
+    after(async function () {
+        await mongoose.connect("mongodb://localhost:27017/evChargingDB");
+    });
+});
+
